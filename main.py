@@ -29,6 +29,7 @@ def check_job_page(job_id, page_html):
         if not os.path.isfile(file_path):
             with open(file_path, "wb") as htmlfile:
                 htmlfile.write(html)
+                print'Created file: %s' % file_name
         else:
             print'File already exists: %s' % file_name
 
@@ -47,7 +48,7 @@ def main():
 
     home_page = BeautifulSoup(browser.page_source)
     #latest_job_id = get_latest_job_id(home_page)
-    latest_job_id = '124674'
+    latest_job_id = '124714'
 
     latest_id_int = int(latest_job_id) + 1
     for job_id in reversed(range(latest_id_int)):
