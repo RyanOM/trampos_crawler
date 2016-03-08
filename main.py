@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 import os, time, re
 import urlparse, random, getpass
@@ -37,7 +38,7 @@ def check_job_page(job_id, page_html):
 def get_job_opportunity(browser, job_id):
     job_url = 'http://trampos.co/oportunidades/%s' % job_id
     browser.get(job_url)
-    time.sleep(random.uniform(3.4, 9.5))
+    time.sleep(random.uniform(0.4, 2.5))
     page_html = BeautifulSoup(browser.page_source)
     check_job_page(job_id, page_html)
 
@@ -47,8 +48,8 @@ def main():
     browser.get('http://trampos.co/')
 
     home_page = BeautifulSoup(browser.page_source)
-    #latest_job_id = get_latest_job_id(home_page)
-    latest_job_id = '124714'
+    latest_job_id = get_latest_job_id(home_page)
+    #latest_job_id = '124714'
 
     latest_id_int = int(latest_job_id) + 1
     for job_id in reversed(range(latest_id_int)):
