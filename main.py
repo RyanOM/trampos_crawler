@@ -1,4 +1,5 @@
 
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os, time, re
 import urlparse, random, getpass
@@ -6,6 +7,9 @@ import urlparse, random, getpass
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
+from pyvirtualdisplay import Display
+
+from idmarker import marker
 
 
 def get_latest_job_id(homepagesoup):
@@ -21,6 +25,7 @@ def check_job_page(job_id, page_html):
         print '404: %s' % job_id
     elif 'pode ser visualizado por candidatos premium' in page_html.text:
         print 'premium: %s' % job_id
+        oldest_premium = job_id
     elif 'VEJA OUTROS NA MESMA' in page_html.text:
         print 'Job no longer avaliable: %s' % job_id
     else:
@@ -44,16 +49,32 @@ def get_job_opportunity(browser, job_id):
 
 
 def main():
-    browser = webdriver.Firefox()
-    browser.get('http://trampos.co/')
+	display = Display(visible=0, size=(800, 600))
+	#display.start()
+	browser = webdriver.Firefox()
+	browser.get('http://trampos.co/')
+	home_page = BeautifulSoup(browser.page_source)
+	latest_job_id = get_latest_job_id(home_page)
+	#latest_job_id = '124714'
+	# leave a marker to get on the next scrape
+	oldest_premium = marker
+	limit = marker
 
-    home_page = BeautifulSoup(browser.page_source)
-    latest_job_id = get_latest_job_id(home_page)
-    #latest_job_id = '124714'
-
-    latest_id_int = int(latest_job_id) + 1
-    for job_id in reversed(range(latest_id_int)):
-        get_job_opportunity(browser, job_id)
+	latest_id_int = int(latest_job_id) + 1
+	for job_id in reversed(range(latest_id_int)):
+		terminate = os.path.isfile('./terminate.txt')
+		if terminate or job_id < limit:
+			with open('./idmarker.py', 'w') as marker_file:
+				marker_file.write("marker = %s" %oldest_premium)
+			browser.quit()
+			if terminate:
+				print("exiting due to terminate")
+				os.remove('./terminate.txt')
+			else:
+				print("Finished scraping new docs")
+			break
+		else:
+			get_job_opportunity(browser, job_id)
 
 
 if __name__ == '__main__':
